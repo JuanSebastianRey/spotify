@@ -1,69 +1,92 @@
-class myframe extends HTMLElement{
-    id
-    constructor(id){
-        super();
-        this.attachShadow({mode: "open"});
-    }
-    connectedCallback(){
-        this.shadowRoot.innerHTML = /*html*/`
-            <iframe class="spotify-iframe" width="454" height="690" src="https://open.spotify.com/embed/album/${this.id}" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
-        `
-    }
-    static get observedAttributes(){
-        return ["uri"];
-    }
-    attributeChangedCallback(name,old,now){
-        let[nameUri, album, id] = now.split(":")
-        this.id = id;
-    }
-}
-customElements.define("my-frame",myframe)
+import MyFrame from './components/my-frame.js';
 
-const listarAlbum = document.querySelector("#listarAlbum")
+const apiUrl = "https://spotify23.p.rapidapi.com/search/";
+const apiKey = "6275bafd33mshb8de4d750097a4fp1e70bcjsne2bdaa25c18e";
+const apiHost = "spotify23.p.rapidapi.com";
+const offset = Math.floor(Math.random() * 100);
+const limit = Math.floor(Math.random() * 50) + 1;
 
-let url = 'https://spotify23.p.rapidapi.com/search/?q=%3CREQUIRED%3E&type=albums&offset=0&limit=10&numberOfTopResults=5';
+const url = `${apiUrl}?q=%3CREQUIRED%3E&type=albums%2C%20artists%2C%20playlists%2C%20tracks&offset=${offset}&limit=${limit}&numberOfTopResults=5`;
+
+
+
 const options = {
-	method: 'GET',
-	headers: {
-		'X-RapidAPI-Key': '825f52aba2mshe0fbee31a795561p1004bbjsn81f444926bbe',
-		'X-RapidAPI-Host': 'spotify23.p.rapidapi.com'
-	}
+  method: "GET",
+  headers: {
+    "X-RapidAPI-Key": apiKey,
+    "X-RapidAPI-Host": apiHost,
+  },
 };
 
 try {
-	const response = await fetch(url, options);
-	const result = await response.json();
-    let va = result.albums.items
-    for(let i = 0; i < 1000; i++){
-        fetch (url)
-        .then(response => response.json())
-        .then(data => mostrarAlbum(data))
-        let imagen = result.albums.items[i]?.data.coverArt.sources[i]?.url ?? result.albums.items[i]?.data.coverArt.sources[0]?.url;
-        let nombre = result.albums.items[i].data.name
-        let nombreArtista = result.albums.items[i].data.artists.items[i]?.profile.name ?? result.albums.items[i].data.artists.items[0]?.profile.name;
-        let fecha = result.albums.items[i].data.date.year
-        
-        const mostrarAlbum = async () => {
-            const div = document.createElement("div");
-            div.classList.add("album")
-            div.innerHTML = `
-            <div class="album">
-                <div class="album_order">
-                    <div class="imagen_album">
-                        <img src="${imagen}" alt="" class="portada">
-                    </div>
-                    <div class="info_album">
-                        <h3>${nombre}</h3>
-                        <p>${nombreArtista}</p>
-                        <p>${fecha}</p>
-                    </div>
-                </div>
-            </div>`;
-            listarAlbum.append(div);
-        }
-        if(imagen){
-        }
-    }
+  const url = "https://spotify23.p.rapidapi.com/search/?q=%3CREQUIRED%3E&type=albums%2C%20artists%2C%20playlists%2C%20tracks&offset=0&limit=10&numberOfTopResults=5";
+  const response = await fetch(url, options);
+  const result = await response.json();
+  const albumItems = result.albums.items;
+  return albumItems;
 } catch (error) {
-	console.error(error);
+  console.error("Error fetching albums:", error);
+  return [];
 }
+
+async function fetchAlbums() {
+    try {
+      const response = await fetch(`${apiUrl}?q=%3CREQUIRED%3E&type=albums%2C%20artists%2C%20playlists%2C%20tracks&offset=0&limit=10&numberOfTopResults=5`, options);
+      const result = await response.json();
+      if (result.albums) {
+        const albumItems = result.albums.items;
+        return albumItems;
+      } else {
+        console.error("Error fetching albums: ", result);
+        return [];
+      }
+    } catch (error) {
+      console.error("Error fetching albums:", error);
+      return [];
+    }
+  }
+
+async function createAlbumHTML(albumItem) {
+  const getImage = albumItem.data.coverArt.sources[0].url;
+  const nombre = albumItem.data.name;
+  const nombreArtista = albumItem.data.artists.items[0].profile.name;
+  const fecha = albumItem.data.date.year;
+  const uri = albumItem.data.uri;
+
+  const albumHTML = `
+    <div class="album">
+      <div class="album_order" data-id="${uri}">
+        <div class="imagen_album">
+          <img src="${getImage}" alt="" class="portada">
+        </div>
+        <div class="info_album">
+          <h3>${nombre}</h3>
+          <p>${nombreArtista}</p>
+          <p>${fecha}</p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  return albumHTML;
+}
+
+async function renderAlbums() {
+  const albumItems = await fetchAlbums();
+  const listarAlbum = document.getElementById("listarAlbum");
+  listarAlbum.innerHTML = "";
+
+  albumItems.forEach((albumItem) => {
+    const albumHTML = createAlbumHTML(albumItem);
+    const div = document.createElement("div");
+    div.innerHTML = albumHTML;
+    listarAlbum.appendChild(div);
+
+    div.querySelector(".album_order").addEventListener("click", () => {
+      const frame = document.querySelector("my-frame");
+      frame.setAttribute("uri", albumItem.data.uri);
+    });
+  });
+}
+
+renderAlbums();
