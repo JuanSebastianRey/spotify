@@ -1,18 +1,29 @@
-export default class MyFrame extends HTMLElement {
+export class MyFrame extends HTMLElement {
     constructor() {
       super();
       this.attachShadow({ mode: "open" });
     }
   
     connectedCallback() {
-      setTimeout(() => {
-        this.shadowRoot.querySelector("iframe").addEventListener("load", () => {
-          const uri = this.getAttribute("uri");
-          if (uri) {
-            this.shadowRoot.querySelector("iframe").src = `https://open.spotify.com/embed/album/${uri}`;
-          }
+      if (this.shadowRoot) {
+        // Add event listener to the shadow root
+        this.shadowRoot.querySelector(".album_order").addEventListener("click", () => {
+          const frame = document.querySelector("my-frame");
+          frame.setAttribute("uri", albumItem.data.uri);
         });
-      }, 0);
+      }
+    }
+  
+    static get observedAttributes() {
+      return ["uri"];
+    }
+  
+    attributeChangedCallback(name, oldVal, newVal) {
+      let [, , id] = newVal.split(":");
+      this.id = id;
+      this.shadowRoot.innerHTML = `
+              <iframe class="spotify-iframe" width="454" height="690" src="https://open.spotify.com/embed/album/${this.id}" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+          `;
     }
   }
   
