@@ -4,18 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spotify</title>
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@latest/css/boxicons.min.css" />
     <link rel="stylesheet" href="css/style.css">
     <script type="module" src="js/main.js" defer></script>
 </head>
-<body>
+<body id="now">
     <main class="container">
-        <aside class="left">
+        <section class="left" id="discover">
             <header>
                 <h1 class="title">
                     Discover New music
                 </h1>
             </header>
-            <div class="contenedor">
+            <div class="contenedor" >
                 <h3 class="topChart">Top chart</h3>
                 <div class="search-header">
                     <input placeholder="Search" class="search-header__input" type="text" />
@@ -23,7 +24,7 @@
                     <svg
                         fill="none"
                         viewBox="0 0 18 18"
-                        height="18"
+                        height="19"
                         width="18"
                         class="search-header__icon"
                     >
@@ -37,25 +38,25 @@
                 <div class="album_grande" id="listarAlbum">
                 </div>
                 <div class="trackRecomendations">
-                    <h3 class="topChart">Track recomendations</h3>
+                    <h3 class="topChart">May you like</h3>
                     <div class="track_recomendation" id = "listarPlayList">
 
                     </div>
                 </div>
             </div>
-        </aside>
-        <aside class="medium">
+        </section>
+        <section class="medium" >
             <h1 class="title">
                 Now-Playing
             </h1>
             <my-frame id="frame"></my-frame>
-        </aside>
-        <aside class="right">
+        </section>
+        <section class="right" id="track">
             <h1 class="title">
                 Track List
             </h1>
-            <div class="search-header">
-                <input placeholder="Search" class="search-header__input" type="text" />
+            <div class="search-header" >
+                <input placeholder="Search" class="search-header__input search-right__input" type="text" />
                 <button class="search-header__button">
                   <svg
                     fill="none"
@@ -79,10 +80,14 @@
             
         </div>
         </div>
-        </aside>
-        <footer class="nav">
-
-        </footer>
+        </section>
+        <footer>
+            <!-- Menú flotante en el footer -->
+            <div class="footer-menu">
+                <a href="#discover"><i class='bx bxs-album' style='color:#3eea0a'  ></i></a>
+                <a href="#now"><i class='bx bx-headphone' style='color:#43f10e'  ></i></a>
+                <a href="#track"><i class='bx bxs-playlist' style='color:#43f10e'></i></a>
+            </div>
     </main>
 </body>
 </html>
